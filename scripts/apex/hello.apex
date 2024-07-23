@@ -1,10 +1,11 @@
-// Use .apex files to store anonymous Apex.
-// You can execute anonymous Apex in VS Code by selecting the
-//     apex text and running the command:
-//     SFDX: Execute Anonymous Apex with Currently Selected Text
-// You can also execute the entire file by running the command:
-//     SFDX: Execute Anonymous Apex with Editor Contents
-
-string tempvar = 'Enter_your_name_here';
-System.debug('Hello World!');
-System.debug('My name is ' + tempvar);
+ if (Trigger.isDelete){
+        //Account related to the opportunities 
+        Map<Id, Account> accounts = new Map<Id, Account>([SELECT Id, Industry FROM Account WHERE Id IN (SELECT AccountId FROM Opportunity WHERE Id IN :Trigger.old)]);
+        for(Opportunity opp : Trigger.old){
+            if(opp.StageName == 'Closed Won'){
+                if(accounts.get(opp.AccountId).Industry == 'Banking'){
+                    opp.addError('Cannot delete a closed won opportunity for a banking account');
+                }
+            }
+        }
+    }
